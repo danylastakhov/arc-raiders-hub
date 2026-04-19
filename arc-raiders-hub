@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)file:///Users/danil/Downloads/arc_raiders_hub_3.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARC Raiders — Speranza Terminal</title>
+<link href="./ARC Raiders — Speranza Terminal_files/css2" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#030507;--bg2:#080c10;--bg3:#0d1319;--panel:#0a1018;
+  --border:#1a2535;--gold:#FFD700;--red:#FF003C;--cyan:#00E5FF;
+  --green:#00FF88;--muted:#3a5068;--text:#a8c4d8;--text2:#5a7a94;
+  --white:#e0eef8;--font:'Share Tech Mono',monospace;--orb:'Orbitron',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;height:100vh;display:flex;flex-direction:column;}
+.scanline{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,0.012) 2px,rgba(0,229,255,0.012) 4px);}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:44px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;}
+.topbar-logo{font-family:var(--orb);font-size:13px;font-weight:900;letter-spacing:4px;color:var(--cyan);text-shadow:0 0 20px rgba(0,229,255,0.4);}
+.topbar-logo span{color:var(--gold);}
+.topbar-status{display:flex;gap:16px;font-size:10px;color:var(--text2);}
+.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:5px;}
+.dot-live{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse-dot 2s infinite;}
+.dot-warn{background:var(--gold);}
+.dot-dead{background:var(--red);}
+@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.3;}}
+.topbar-time{font-size:11px;color:var(--text2);letter-spacing:2px;}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;overflow:hidden;}
+.nav-rail{width:58px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px;flex-shrink:0;}
+.nav-btn{width:42px;height:42px;border:1px solid transparent;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;transition:all .2s;color:var(--muted);}
+.nav-btn:hover{border-color:var(--border);background:var(--bg3);color:var(--text);}
+.nav-btn.active{border-color:var(--cyan);background:rgba(0,229,255,.06);color:var(--cyan);}
+.nav-btn svg{width:18px;height:18px;fill:currentColor;}
+.nav-btn .nav-label{font-size:7px;letter-spacing:1px;}
+.nav-divider{width:30px;height:1px;background:var(--border);margin:6px 0;}
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.tab-content{flex:1;overflow-y:auto;padding:16px;display:none;}
+.tab-content.active{display:block;}
+.tab-content::-webkit-scrollbar{width:4px;}
+.tab-content::-webkit-scrollbar-track{background:transparent;}
+.tab-content::-webkit-scrollbar-thumb{background:var(--border);}
+
+/* HEADERS */
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.section-header h2{font-family:var(--orb);font-size:11px;font-weight:700;letter-spacing:4px;color:var(--white);}
+.section-tag{font-size:9px;padding:2px 8px;border:1px solid;letter-spacing:2px;}
+.tag-live{border-color:var(--green);color:var(--green);}
+.tag-warn{border-color:var(--gold);color:var(--gold);}
+.tag-count{border-color:var(--muted);color:var(--muted);}
+.hline{flex:1;height:1px;background:var(--border);}
+
+/* EVENT TIMERS TAB */
+.utc-bar{background:var(--bg2);border:1px solid var(--border);padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--text2);}
+.utc-clock{font-size:20px;font-weight:700;color:var(--cyan);letter-spacing:4px;font-family:var(--orb);}
+.map-filter-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.map-pill{background:transparent;border:1px solid var(--border);color:var(--text2);font-family:var(--font);font-size:9px;letter-spacing:2px;padding:5px 12px;cursor:pointer;transition:all .2s;}
+.map-pill.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,.06);}
+.map-pill:hover:not(.active){border-color:var(--muted);color:var(--text);}
+
+/* ACTIVE NOW SECTION */
+.active-now-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:20px;}
+.event-card-active{background:var(--panel);border:1px solid var(--red);padding:14px;position:relative;overflow:hidden;}
+.event-card-active::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--red);box-shadow:0 0 12px var(--red);animation:pulse-red 1s infinite;}
+@keyframes pulse-red{0%,100%{opacity:1;}50%{opacity:.4;}}
+.event-card-upcoming{background:var(--panel);border:1px solid var(--border);padding:14px;position:relative;overflow:hidden;transition:border-color .2s;}
+.event-card-upcoming:hover{border-color:var(--muted);}
+.event-card-upcoming::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cyan);}
+.ev-badge{font-size:8px;letter-spacing:3px;margin-bottom:6px;}
+.ev-badge-active{color:var(--red);}
+.ev-badge-soon{color:var(--gold);}
+.ev-badge-later{color:var(--text2);}
+.ev-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.ev-icon{width:32px;height:32px;object-fit:contain;flex-shrink:0;}
+.ev-icon-placeholder{width:32px;height:32px;background:var(--bg3);border:1px solid var(--border);flex-shrink:0;}
+.ev-name{font-family:var(--orb);font-size:12px;font-weight:700;color:var(--white);letter-spacing:1px;}
+.ev-map{font-size:9px;color:var(--text2);letter-spacing:2px;margin-top:2px;}
+.ev-time-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.ev-window{font-size:10px;color:var(--text2);}
+.ev-window span{color:var(--white);}
+.timer-display{font-size:16px;letter-spacing:3px;font-weight:700;}
+.timer-active{color:var(--red);animation:blink-t .9s step-end infinite;}
+.timer-soon{color:var(--gold);}
+.timer-normal{color:var(--cyan);}
+@keyframes blink-t{50%{opacity:.3;}}
+.notify-toggle{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:8px;letter-spacing:2px;color:var(--muted);border:1px solid var(--border);padding:3px 8px;transition:all .2s;margin-top:6px;width:fit-content;}
+.notify-toggle.on{color:var(--green);border-color:var(--green);}
+
+/* UPCOMING TABLE */
+.upcoming-section{margin-top:8px;}
+.upcoming-label{font-size:9px;letter-spacing:3px;color:var(--text2);margin-bottom:8px;}
+.upcoming-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;}
+
+/* ITEMS TAB */
+.item-controls{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+.search-bar{flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border);color:var(--white);font-family:var(--font);font-size:11px;padding:8px 12px;outline:none;transition:border-color .2s;}
+.search-bar:focus{border-color:var(--cyan);}
+.filter-btn{background:transparent;border:1px solid var(--border);color:var(--text2);font-family:var(--font);font-size:9px;letter-spacing:2px;padding:8px 12px;cursor:pointer;transition:all .2s;}
+.filter-btn.active{border-color:var(--cyan);color:var(--cyan);}
+.filter-btn:hover:not(.active){border-color:var(--muted);}
+.item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
+.item-card{background:var(--panel);border:1px solid var(--border);padding:10px 12px;display:flex;align-items:center;gap:10px;}
+.item-img-wrap{width:36px;height:36px;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.item-img-wrap img{width:32px;height:32px;object-fit:contain;}
+.item-img-placeholder{font-size:7px;color:var(--muted);}
+.item-info{flex:1;min-width:0;}
+.item-name{font-size:10px;color:var(--white);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item-rarity{font-size:8px;letter-spacing:2px;}
+.item-category{font-size:8px;color:var(--text2);margin-top:2px;}
+.rarity-legendary{color:var(--gold);}
+.rarity-epic{color:#8b00ff;}
+.rarity-rare{color:#0077cc;}
+.rarity-uncommon{color:#00b050;}
+.rarity-common{color:#888;}
+.load-more-btn{width:100%;margin-top:12px;background:transparent;border:1px solid var(--border);color:var(--text2);font-family:var(--font);font-size:9px;letter-spacing:3px;padding:10px;cursor:pointer;transition:all .2s;}
+.load-more-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+
+/* TRADE TAB */
+.trade-layout{display:flex;gap:10px;}
+.trade-feed{flex:1;}
+.trade-sidebar{width:220px;flex-shrink:0;}
+.create-btn{width:100%;background:transparent;border:1px solid var(--cyan);color:var(--cyan);font-family:var(--font);font-size:10px;letter-spacing:3px;padding:10px;cursor:pointer;transition:all .2s;margin-bottom:10px;}
+.create-btn:hover{background:rgba(0,229,255,.08);}
+.info-box{background:var(--panel);border:1px solid var(--border);padding:12px;margin-bottom:10px;}
+.info-box h3{font-family:var(--orb);font-size:9px;letter-spacing:3px;color:var(--text2);margin-bottom:10px;}
+.info-row{display:flex;justify-content:space-between;font-size:10px;margin-bottom:6px;}
+.trade-card{background:var(--panel);border:1px solid var(--border);padding:12px;margin-bottom:8px;cursor:pointer;transition:border-color .2s;}
+.trade-card:hover{border-color:var(--cyan);}
+.trade-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.trader-info{display:flex;align-items:center;gap:8px;}
+.trader-avatar{width:28px;height:28px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--cyan);}
+.trader-name{font-size:11px;color:var(--white);}
+.trader-rep{font-size:9px;color:var(--gold);}
+.trade-time{font-size:9px;color:var(--text2);}
+.trade-items{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.trade-item-chip{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);padding:5px 10px;font-size:10px;}
+.trade-dot{width:6px;height:6px;border-radius:50%;}
+.trade-tag{font-size:8px;letter-spacing:2px;padding:2px 6px;border:1px solid var(--border);color:var(--text2);}
+.empty-feed{text-align:center;padding:40px 20px;color:var(--muted);font-size:10px;letter-spacing:2px;line-height:2;}
+
+/* MODALS */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(3,5,7,.88);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.modal-box{background:var(--bg2);border:1px solid var(--cyan);width:440px;max-width:95vw;padding:24px;position:relative;}
+.modal-close{position:absolute;top:12px;right:12px;background:transparent;border:1px solid var(--border);color:var(--text2);font-family:var(--font);width:24px;height:24px;cursor:pointer;font-size:12px;}
+.modal-title{font-family:var(--orb);font-size:11px;letter-spacing:4px;color:var(--cyan);margin-bottom:16px;}
+.modal-trader{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.modal-avatar{width:44px;height:44px;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--cyan);}
+.modal-name{font-size:14px;color:var(--white);font-family:var(--orb);}
+.stars{color:var(--gold);font-size:14px;letter-spacing:2px;}
+.modal-section{font-size:9px;letter-spacing:3px;color:var(--text2);margin-bottom:8px;}
+.proof-placeholder{background:var(--bg3);border:1px dashed var(--border);height:80px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:16px;}
+.modal-btn{width:100%;background:transparent;border:1px solid var(--green);color:var(--green);font-family:var(--font);font-size:10px;letter-spacing:4px;padding:12px;cursor:pointer;margin-bottom:6px;}
+.modal-btn:hover{background:rgba(0,255,136,.08);}
+.modal-btn-sec{border-color:var(--border);color:var(--text2);}
+
+/* CREATE OVERLAY */
+.create-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(3,5,7,.92);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.create-box{background:var(--bg2);border:1px solid var(--border);width:560px;max-width:95vw;padding:24px;}
+.create-box h2{font-family:var(--orb);font-size:11px;letter-spacing:4px;color:var(--white);margin-bottom:20px;}
+.create-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.create-col label{font-size:9px;letter-spacing:3px;color:var(--text2);display:block;margin-bottom:6px;}
+.search-wrap{position:relative;}
+.ac-input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--white);font-family:var(--font);font-size:11px;padding:9px 10px;outline:none;transition:border-color .2s;}
+.ac-input:focus{border-color:var(--cyan);}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--bg2);border:1px solid var(--border);border-top:none;max-height:200px;overflow-y:auto;z-index:10;}
+.ac-list::-webkit-scrollbar{width:3px;}
+.ac-list::-webkit-scrollbar-thumb{background:var(--border);}
+.ac-item{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;font-size:10px;}
+.ac-item:hover{background:rgba(0,229,255,.06);}
+.ac-thumb{width:22px;height:22px;object-fit:contain;}
+.ac-name{flex:1;color:var(--white);}
+.ac-rar{font-size:8px;letter-spacing:1px;}
+.sel-chip{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);padding:5px 10px;margin-top:6px;font-size:10px;}
+.sel-thumb{width:24px;height:24px;object-fit:contain;}
+.create-actions{display:flex;gap:8px;justify-content:flex-end;}
+.btn-cancel{background:transparent;border:1px solid var(--border);color:var(--text2);font-family:var(--font);font-size:9px;letter-spacing:2px;padding:8px 16px;cursor:pointer;}
+.btn-post{background:transparent;border:1px solid var(--cyan);color:var(--cyan);font-family:var(--font);font-size:9px;letter-spacing:2px;padding:8px 16px;cursor:pointer;}
+.btn-post:hover{background:rgba(0,229,255,.08);}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--bg2);border:1px solid var(--green);padding:10px 14px;font-size:10px;color:var(--green);letter-spacing:2px;animation:slideIn .3s ease;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.loading-msg{text-align:center;padding:30px;color:var(--muted);font-size:10px;letter-spacing:3px;}
+.spinner{display:inline-block;width:10px;height:10px;border:1px solid var(--muted);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+
+<div class="topbar">
+  <div class="topbar-logo">ARC<span>.</span>RAIDERS <span style="color:var(--text2);font-size:10px;margin-left:8px;letter-spacing:2px;">SPERANZA TERMINAL v3.1</span></div>
+  <div class="topbar-status">
+    <span id="timer-api-status"><span class="status-dot dot-live"></span>TIMERS LIVE</span>
+    <span id="item-api-status"><span class="status-dot dot-live"></span>ITEMS LIVE</span>
+  </div>
+  <div class="topbar-time" id="sys-time">12:18:12 LOCAL</div>
+</div>
+
+<div class="layout">
+  <div class="nav-rail">
+    <button class="nav-btn" onclick="switchTab(&#39;timers&#39;)" title="Event Timers">
+      <svg viewBox="0 0 24 24"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A7.93 7.93 0 0012 4c-4.42 0-8 3.58-8 8s3.57 8 8 8 8-3.58 8-8c0-1.82-.62-3.5-1.97-4.61zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"></path></svg>
+      <span class="nav-label">TIMERS</span>
+    </button>
+    <div class="nav-divider"></div>
+    <button class="nav-btn" onclick="switchTab(&#39;items&#39;)" title="Items">
+      <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.33C18 2.54 16.22.86 14.08.86c-1.18 0-2.2.54-2.9 1.38L12 3l-.88-1a3.85 3.85 0 00-2.9-1.38C6.08.62 4.29 2.3 4.29 4.67c0 .45.1.89.18 1.33H2c-1.11 0-2 .89-2 2v13c0 1.11.89 2 2 2h18c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5.92-3.6c.98 0 1.77.8 1.77 1.77 0 .63-.34 1.17-.83 1.48L12 7.36 8.98 5.65a1.78 1.78 0 01-.83-1.48c0-.97.79-1.77 1.77-1.77.49 0 .93.2 1.25.52L12 4.05l.83-.88c.32-.32.76-.52 1.25-.52zM11 19H2v-2h9v2zm0-4H2v-2h9v2zm0-4H2V9h9v2zm9 8h-7v-2h7v2zm0-4h-7v-2h7v2zm0-4h-7V9h7v2z"></path></svg>
+      <span class="nav-label">ITEMS</span>
+    </button>
+    <div class="nav-divider"></div>
+    <button class="nav-btn active" onclick="switchTab(&#39;trade&#39;)" title="Trade">
+      <svg viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" stroke="currentColor" stroke-width="2" fill="none"></path></svg>
+      <span class="nav-label">TRADE</span>
+    </button>
+  </div>
+
+  <div class="main">
+
+    <!-- TIMERS TAB -->
+    <div class="tab-content" id="tab-timers">
+      <div class="utc-bar">
+        <div>
+          <div style="font-size:8px;letter-spacing:3px;color:var(--text2);margin-bottom:2px;">UTC TIME</div>
+          <div class="utc-clock" id="utc-clock">09:18:12</div>
+        </div>
+        <div style="text-align:right;font-size:9px;color:var(--text2);line-height:1.9;">
+          Source: metaforge.app/api/arc-raiders/event-timers<br>
+          <span id="timer-sync-time">Live sync: 09:15 UTC</span>
+        </div>
+      </div>
+      <div class="section-header">
+        <h2>EVENT TIMERS</h2>
+        <span class="section-tag tag-live" id="timer-live-tag">● LIVE</span>
+        <div class="hline"></div>
+        <span style="font-size:9px;color:var(--text2);letter-spacing:2px;" id="event-count">24 EVENTS</span>
+      </div>
+      <div class="map-filter-bar" id="map-filter-bar">
+        <button class="map-pill active" data-map="all" onclick="setMapFilter(this,&#39;all&#39;)">ALL MAPS</button>
+      <button class="map-pill" data-map="Blue Gate">BLUE GATE</button><button class="map-pill" data-map="Buried City">BURIED CITY</button><button class="map-pill" data-map="Dam">DAM</button><button class="map-pill" data-map="Spaceport">SPACEPORT</button><button class="map-pill" data-map="Stella Montis">STELLA MONTIS</button></div>
+      <div id="timers-loading" class="loading-msg" style="display: none;"><span class="spinner"></span>FETCHING EVENT TIMERS...</div>
+      <div id="active-now-section" style="display: block;">
+        <div style="font-size:9px;letter-spacing:3px;color:var(--red);margin-bottom:8px;">// ACTIVE NOW</div>
+        <div class="active-now-grid" id="active-now-grid">
+      <div class="event-card-active">
+        <div class="ev-badge ev-badge-active">⬡ ACTIVE NOW</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/lush.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Lush Blooms</div>
+            <div class="ev-map">// SPACEPORT</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Window: <span>09:00 – 10:00 UTC</span></div>
+          <div class="timer-display timer-active" id="ev-timer-a-0">ENDS 41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-a-0" onclick="toggleNotify(this,&#39;a-0&#39;,&#39;Lush Blooms on Spaceport&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div>
+      <div class="event-card-active">
+        <div class="ev-badge ev-badge-active">⬡ ACTIVE NOW</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/electrical.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Electromagnetic Storm</div>
+            <div class="ev-map">// DAM</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Window: <span>09:00 – 10:00 UTC</span></div>
+          <div class="timer-display timer-active" id="ev-timer-a-1">ENDS 41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-a-1" onclick="toggleNotify(this,&#39;a-1&#39;,&#39;Electromagnetic Storm on Dam&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div>
+      <div class="event-card-active">
+        <div class="ev-badge ev-badge-active">⬡ ACTIVE NOW</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/matriarch.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Matriarch</div>
+            <div class="ev-map">// SPACEPORT</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Window: <span>09:00 – 10:00 UTC</span></div>
+          <div class="timer-display timer-active" id="ev-timer-a-2">ENDS 41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-a-2" onclick="toggleNotify(this,&#39;a-2&#39;,&#39;Matriarch on Spaceport&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div>
+      <div class="event-card-active">
+        <div class="ev-badge ev-badge-active">⬡ ACTIVE NOW</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/lockedgate.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Locked Gate</div>
+            <div class="ev-map">// BLUE GATE</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Window: <span>09:00 – 10:00 UTC</span></div>
+          <div class="timer-display timer-active" id="ev-timer-a-3">ENDS 41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-a-3" onclick="toggleNotify(this,&#39;a-3&#39;,&#39;Locked Gate on Blue Gate&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div></div>
+      </div>
+      <div id="upcoming-section" class="upcoming-section" style="display: block;">
+        <div class="upcoming-label">// UPCOMING</div>
+        <div class="upcoming-grid" id="upcoming-grid"><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/lush.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Lush Blooms</div>
+            <div class="ev-map">// BURIED CITY</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>10:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-0">IN 41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-0" onclick="toggleNotify(this,&#39;u-0&#39;,&#39;Lush Blooms on Buried City&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/night.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Night Raid</div>
+            <div class="ev-map">// BURIED CITY</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>10:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-1">IN 41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-1" onclick="toggleNotify(this,&#39;u-1&#39;,&#39;Night Raid on Buried City&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/night.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Night Raid</div>
+            <div class="ev-map">// STELLA MONTIS</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>10:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-2">IN 41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-2" onclick="toggleNotify(this,&#39;u-2&#39;,&#39;Night Raid on Stella Montis&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/lush.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Lush Blooms</div>
+            <div class="ev-map">// DAM</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>10:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-3">IN 41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-3" onclick="toggleNotify(this,&#39;u-3&#39;,&#39;Lush Blooms on Dam&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/hiddenbunker.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Hidden Bunker</div>
+            <div class="ev-map">// SPACEPORT</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>11:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-4">IN 01:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-4" onclick="toggleNotify(this,&#39;u-4&#39;,&#39;Hidden Bunker on Spaceport&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/lush.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Lush Blooms</div>
+            <div class="ev-map">// BLUE GATE</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>11:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-5">IN 01:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-5" onclick="toggleNotify(this,&#39;u-5&#39;,&#39;Lush Blooms on Blue Gate&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/harvester.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Harvester</div>
+            <div class="ev-map">// SPACEPORT</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>12:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-6">IN 02:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-6" onclick="toggleNotify(this,&#39;u-6&#39;,&#39;Harvester on Spaceport&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/electrical.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Electromagnetic Storm</div>
+            <div class="ev-map">// BLUE GATE</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>12:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-7">IN 02:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-7" onclick="toggleNotify(this,&#39;u-7&#39;,&#39;Electromagnetic Storm on Blue Gate&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/matriarch.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Matriarch</div>
+            <div class="ev-map">// DAM</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>13:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-8">IN 03:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-8" onclick="toggleNotify(this,&#39;u-8&#39;,&#39;Matriarch on Dam&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/night.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Night Raid</div>
+            <div class="ev-map">// DAM</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>13:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-9">IN 03:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-9" onclick="toggleNotify(this,&#39;u-9&#39;,&#39;Night Raid on Dam&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/matriarch.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Matriarch</div>
+            <div class="ev-map">// BLUE GATE</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>14:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-10">IN 04:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-10" onclick="toggleNotify(this,&#39;u-10&#39;,&#39;Matriarch on Blue Gate&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/electrical.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Electromagnetic Storm</div>
+            <div class="ev-map">// SPACEPORT</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>15:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-11">IN 05:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-11" onclick="toggleNotify(this,&#39;u-11&#39;,&#39;Electromagnetic Storm on Spaceport&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/harvester.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Harvester</div>
+            <div class="ev-map">// DAM</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>16:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-12">IN 06:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-12" onclick="toggleNotify(this,&#39;u-12&#39;,&#39;Harvester on Dam&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/night.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Night Raid</div>
+            <div class="ev-map">// SPACEPORT</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>19:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-13">IN 09:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-13" onclick="toggleNotify(this,&#39;u-13&#39;,&#39;Night Raid on Spaceport&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/launchtowerloot.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Launch Tower Loot</div>
+            <div class="ev-map">// SPACEPORT</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>21:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-14">IN 11:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-14" onclick="toggleNotify(this,&#39;u-14&#39;,&#39;Launch Tower Loot on Spaceport&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/probe.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Prospecting Probes</div>
+            <div class="ev-map">// BURIED CITY</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>01:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-15">IN 15:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-15" onclick="toggleNotify(this,&#39;u-15&#39;,&#39;Prospecting Probes on Buried City&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/probe.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Prospecting Probes</div>
+            <div class="ev-map">// DAM</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>01:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-16">IN 15:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-16" onclick="toggleNotify(this,&#39;u-16&#39;,&#39;Prospecting Probes on Dam&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/harvester.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Harvester</div>
+            <div class="ev-map">// BLUE GATE</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>02:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-17">IN 16:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-17" onclick="toggleNotify(this,&#39;u-17&#39;,&#39;Harvester on Blue Gate&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/probe.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Prospecting Probes</div>
+            <div class="ev-map">// BLUE GATE</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>05:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-18">IN 19:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-18" onclick="toggleNotify(this,&#39;u-18&#39;,&#39;Prospecting Probes on Blue Gate&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div><div class="event-card-upcoming">
+        <div class="ev-badge ev-badge-later">◇ UPCOMING</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="./ARC Raiders — Speranza Terminal_files/night.webp" onerror="this.style.display=&#39;none&#39;" alt="">
+          <div>
+            <div class="ev-name">Night Raid</div>
+            <div class="ev-map">// BLUE GATE</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>05:00 UTC</span></div>
+          <div class="timer-display timer-normal" id="ev-timer-u-19">IN 19:41:47</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-19" onclick="toggleNotify(this,&#39;u-19&#39;,&#39;Night Raid on Blue Gate&#39;)">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div></div>
+      </div>
+    </div>
+
+    <!-- ITEMS TAB -->
+    <div class="tab-content" id="tab-items">
+      <div class="section-header">
+        <h2>ITEM DATABASE</h2>
+        <span class="section-tag tag-live">● LIVE API</span>
+        <span class="section-tag tag-count" id="item-count">529 ITEMS</span>
+        <div class="hline"></div>
+        <span style="font-size:9px;color:var(--text2);letter-spacing:2px;">arcdata.mahcks.com/v1/items</span>
+      </div>
+      <div class="item-controls">
+        <input class="search-bar" id="item-search" placeholder="Search items..." oninput="filterItems()">
+        <button class="filter-btn active" onclick="setRarFilter(this,&#39;all&#39;)">ALL</button>
+        <button class="filter-btn" onclick="setRarFilter(this,&#39;legendary&#39;)" style="color:var(--gold);border-color:rgba(255,215,0,.3);">LEGENDARY</button>
+        <button class="filter-btn" onclick="setRarFilter(this,&#39;epic&#39;)" style="color:#8b00ff;border-color:rgba(139,0,255,.3);">EPIC</button>
+        <button class="filter-btn" onclick="setRarFilter(this,&#39;rare&#39;)" style="color:#0077cc;border-color:rgba(0,119,204,.3);">RARE</button>
+      </div>
+      <div id="item-loading" class="loading-msg" style="display: none;"><span class="spinner"></span>LOADING 490 ITEMS...</div>
+      <div class="item-grid" id="item-grid"><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Acoustic Guitar">Acoustic Guitar</div><div class="item-rarity rarity-legendary">LEGENDARY</div> <div class="item-category">Quick Use</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Adrenaline Shot">Adrenaline Shot</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Quick Use</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Advanced ARC Powercell">Advanced ARC Powercell</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Topside Material</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Advanced Electrical Components">Advanced Electrical Components</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Refined Material</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Advanced Mechanical Components">Advanced Mechanical Components</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Refined Material</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Agave">Agave</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Nature</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Agave Juice">Agave Juice</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Quick Use</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Air Freshener">Air Freshener</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Trinket</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Alarm Clock">Alarm Clock</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Recyclable</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Alien Duck">Alien Duck</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Trinket</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Ancient Fort Security Code">Ancient Fort Security Code</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Key</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Angled Grip I">Angled Grip I</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Modification</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Angled Grip II">Angled Grip II</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Modification</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Angled Grip II Blueprint">Angled Grip II Blueprint</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Blueprint</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Angled Grip III">Angled Grip III</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Modification</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Angled Grip III Blueprint">Angled Grip III Blueprint</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Blueprint</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Antiseptic">Antiseptic</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Refined Material</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Anvil Blueprint">Anvil Blueprint</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Blueprint</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Anvil I">Anvil I</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Hand Cannon</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Anvil II">Anvil II</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Hand Cannon</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Anvil III">Anvil III</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Hand Cannon</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Anvil IV">Anvil IV</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Hand Cannon</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Anvil Splitter">Anvil Splitter</div><div class="item-rarity rarity-legendary">LEGENDARY</div> <div class="item-category">Modification</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Aphelion">Aphelion</div><div class="item-rarity rarity-legendary">LEGENDARY</div> <div class="item-category">Special</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Aphelion Blueprint">Aphelion Blueprint</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Blueprint</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Apricot">Apricot</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Nature</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="ARC Alloy">ARC Alloy</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Topside Material</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="ARC Circuitry">ARC Circuitry</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Topside Material</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="ARC Coolant">ARC Coolant</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Recyclable</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="ARC Flex Rubber">ARC Flex Rubber</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Recyclable</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="ARC Motion Core">ARC Motion Core</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Topside Material</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="ARC Performance Steel">ARC Performance Steel</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Recyclable</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="ARC Powercell">ARC Powercell</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Topside Material</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="ARC Synthetic Resin">ARC Synthetic Resin</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Recyclable</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="ARC Thermo Lining">ARC Thermo Lining</div><div class="item-rarity rarity-rare">RARE</div> <div class="item-category">Recyclable</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Arpeggio I">Arpeggio I</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Assault Rifle</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Arpeggio II">Arpeggio II</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Assault Rifle</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Arpeggio III">Arpeggio III</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Assault Rifle</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Arpeggio IV">Arpeggio IV</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Assault Rifle</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Assessor Matrix">Assessor Matrix</div><div class="item-rarity rarity-epic">EPIC</div> <div class="item-category">Recyclable</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Assorted Seeds">Assorted Seeds</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Nature</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Bandage">Bandage</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Quick Use</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Barricade Kit">Barricade Kit</div><div class="item-rarity rarity-uncommon">UNCOMMON</div> <div class="item-category">Quick Use</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Barricade Kit Blueprint">Barricade Kit Blueprint</div><div class="item-rarity rarity-common">COMMON</div> <div class="item-category">Blueprint</div></div></div><div class="item-card"><div class="item-img-wrap"><div class="item-img-placeholder">IMG</div></div><div class="item-info"><div class="item-name" title="Bastion Cell">Bastion Cell</div><div class="item-rarity rarity-epic">EPIC</div> <div class="item-category">Recyclable</div></div></div></div>
+      <button class="load-more-btn" id="load-more-btn" onclick="loadMoreItems()" style="display:none;" data-shown="60">[ LOAD MORE ]</button>
+    </div>
+
+    <!-- TRADE TAB -->
+    <div class="tab-content active" id="tab-trade">
+      <div class="section-header">
+        <h2>TRADING HUB</h2>
+        <span class="section-tag tag-live">● ACTIVE</span>
+        <div class="hline"></div>
+      </div>
+      <div class="trade-layout">
+        <div class="trade-feed"><div id="trade-feed-inner"><div class="empty-feed">NO ACTIVE LISTINGS<br><span style="color:var(--text2);">Post a trade to get started</span></div></div></div>
+        <div class="trade-sidebar">
+          <button class="create-btn" onclick="openCreate()">[ + CREATE TRADE ]</button>
+          <div class="info-box">
+            <h3>HUB STATS</h3>
+            <div class="info-row"><span>Listings</span><span style="color:var(--white);" id="stat-trades">0</span></div>
+            <div class="info-row"><span>Items indexed</span><span style="color:var(--green);" id="stat-items">529</span></div>
+          </div>
+          <div class="info-box">
+            <h3>HOW TO TRADE</h3>
+            <div style="font-size:9px;color:var(--text2);line-height:1.9;">1. Click CREATE TRADE<br>2. Search real DB items<br>3. Post listing<br>4. Click card → comms</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRADER MODAL -->
+<div class="modal-overlay" id="trader-modal" style="display:none;" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">// TRADER PROFILE</div>
+    <div class="modal-trader">
+      <div class="modal-avatar" id="mod-avatar">--</div>
+      <div>
+        <div class="modal-name" id="mod-name">--</div>
+        <div class="stars">★★★★★</div>
+        <div style="font-size:9px;color:var(--text2);margin-top:2px;">new trader</div>
+      </div>
+    </div>
+    <div class="modal-section">TRADE OFFER</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:10px;">
+      <div style="background:var(--bg3);border:1px solid var(--border);padding:6px 12px;" id="mod-offering">—</div>
+      <span style="color:var(--muted)">FOR</span>
+      <div style="background:var(--bg3);border:1px solid var(--border);padding:6px 12px;" id="mod-requesting">—</div>
+    </div>
+    <div class="modal-section">PROOF SCAN</div>
+    <div class="proof-placeholder">[ SCREENSHOT VERIFICATION PENDING ]</div>
+    <button class="modal-btn" onclick="initiateComms()">[ INITIATE COMMS ]</button>
+    <button class="modal-btn modal-btn-sec" onclick="closeModal()">[ DISMISS ]</button>
+  </div>
+</div>
+
+<!-- CREATE TRADE -->
+<div class="create-overlay" id="create-overlay" style="display: flex;">
+  <div class="create-box">
+    <h2>// CREATE TRADE LISTING</h2>
+    <div class="create-cols">
+      <div class="create-col">
+        <label>OFFERING</label>
+        <div class="search-wrap">
+          <input class="ac-input" id="offer-input" placeholder="Search real items..." autocomplete="off" oninput="handleAC(this,&#39;offer&#39;)" onfocus="handleAC(this,&#39;offer&#39;)">
+          <div class="ac-list" id="offer-ac" style="display:none;"></div>
+        </div>
+        <div id="offer-sel"></div>
+      </div>
+      <div class="create-col">
+        <label>REQUESTING</label>
+        <div class="search-wrap">
+          <input class="ac-input" id="req-input" placeholder="Search real items..." autocomplete="off" oninput="handleAC(this,&#39;req&#39;)" onfocus="handleAC(this,&#39;req&#39;)">
+          <div class="ac-list" id="req-ac" style="display:none;"></div>
+        </div>
+        <div id="req-sel"></div>
+      </div>
+    </div>
+    <div class="create-actions">
+      <button class="btn-cancel" onclick="closeCreate()">CANCEL</button>
+      <button class="btn-post" onclick="postTrade()">POST LISTING</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ── UTILITIES ─────────────────────────
+function showToast(msg,color){
+  color=color||'var(--green)';
+  const t=document.createElement('div');t.className='toast';
+  t.style.borderColor=color;t.style.color=color;t.textContent='>> '+msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(()=>t.remove(),4000);
+}
+function switchTab(id){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  const idx={timers:0,items:1,trade:2}[id];
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+}
+function pad(n){return String(n).padStart(2,'0');}
+function fmtSeconds(s){
+  if(s<=0)return'00:00';
+  const m=Math.floor(s/60),sec=s%60;
+  if(m>=60){const h=Math.floor(m/60);return pad(h)+':'+pad(m%60)+':'+pad(sec);}
+  return pad(m)+':'+pad(sec);
+}
+
+// ── UTC CLOCK ─────────────────────────
+function utcNowSeconds(){
+  const n=new Date();
+  return n.getUTCHours()*3600+n.getUTCMinutes()*60+n.getUTCSeconds();
+}
+function updateClocks(){
+  const n=new Date();
+  const utcStr=pad(n.getUTCHours())+':'+pad(n.getUTCMinutes())+':'+pad(n.getUTCSeconds());
+  document.getElementById('utc-clock').textContent=utcStr;
+  document.getElementById('sys-time').textContent=n.toTimeString().slice(0,8)+' LOCAL';
+}
+setInterval(updateClocks,1000);updateClocks();
+
+// ── EVENT TIMERS ──────────────────────
+let allEvents=[];
+let timerIntervals=[];
+let mapFilter='all';
+
+function timeStrToSeconds(t){
+  const[h,m]=(t||'00:00').split(':').map(Number);
+  return h*3600+m*60;
+}
+
+// For each event+slot, compute: is active, seconds until start, seconds until end
+function classifySlot(startSec,endSec,nowSec){
+  // handle midnight wrap (e.g. end 00:00 = next day)
+  let adjEnd=endSec;
+  if(endSec<=startSec)adjEnd=endSec+86400;
+  let adjNow=nowSec;
+  if(nowSec<startSec&&adjEnd>86400)adjNow=nowSec+86400;
+
+  const active=adjNow>=startSec&&adjNow<adjEnd;
+  const secsUntilStart=active?0:((startSec-nowSec+86400)%86400);
+  const secsUntilEnd=active?(adjEnd-adjNow):null;
+  return{active,secsUntilStart,secsUntilEnd};
+}
+
+function getNextSlot(times,nowSec){
+  // find active or nearest upcoming slot
+  let best=null;
+  for(const t of times){
+    const start=timeStrToSeconds(t.start);
+    const end=timeStrToSeconds(t.end);
+    const info=classifySlot(start,end,nowSec);
+    if(!best||info.active||(best.secsUntilStart>info.secsUntilStart&&!best.active)){
+      best={...info,start:t.start,end:t.end,startSec:start,endSec:end};
+    }
+  }
+  return best;
+}
+
+function renderTimers(){
+  const nowSec=utcNowSeconds();
+  const allMaps=[...new Set(allEvents.map(e=>e.map))].sort();
+
+  // rebuild map filter pills if needed
+  const bar=document.getElementById('map-filter-bar');
+  if(bar.children.length===1){
+    allMaps.forEach(map=>{
+      const btn=document.createElement('button');
+      btn.className='map-pill';btn.dataset.map=map;
+      btn.textContent=map.toUpperCase();
+      btn.onclick=function(){setMapFilter(this,map);};
+      bar.appendChild(btn);
+    });
+  }
+
+  const filtered=mapFilter==='all'?allEvents:allEvents.filter(e=>e.map===mapFilter);
+
+  // classify each event by its best slot
+  const classified=filtered.map(ev=>{
+    const slot=getNextSlot(ev.times,nowSec);
+    return{ev,slot};
+  });
+
+  const active=classified.filter(x=>x.slot&&x.slot.active);
+  const upcoming=classified.filter(x=>x.slot&&!x.slot.active).sort((a,b)=>a.slot.secsUntilStart-b.slot.secsUntilStart);
+
+  document.getElementById('timers-loading').style.display='none';
+  document.getElementById('event-count').textContent=filtered.length+' EVENTS';
+  document.getElementById('timer-live-tag').innerHTML='● LIVE';
+
+  // ACTIVE
+  const activeSection=document.getElementById('active-now-section');
+  const activeGrid=document.getElementById('active-now-grid');
+  if(active.length){
+    activeSection.style.display='block';
+    activeGrid.innerHTML=active.map(({ev,slot},i)=>`
+      <div class="event-card-active">
+        <div class="ev-badge ev-badge-active">⬡ ACTIVE NOW</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="${ev.icon}" onerror="this.style.display='none'" alt=""/>
+          <div>
+            <div class="ev-name">${ev.name}</div>
+            <div class="ev-map">// ${ev.map.toUpperCase()}</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Window: <span>${slot.start} – ${slot.end} UTC</span></div>
+          <div class="timer-display timer-active" id="ev-timer-a-${i}">ENDS ${fmtSeconds(slot.secsUntilEnd)}</div>
+        </div>
+        <div class="notify-toggle" id="ntog-a-${i}" onclick="toggleNotify(this,'a-${i}','${ev.name} on ${ev.map}')">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div>`).join('');
+  } else {
+    activeSection.style.display='none';
+  }
+
+  // UPCOMING
+  const upcomingSection=document.getElementById('upcoming-section');
+  const upcomingGrid=document.getElementById('upcoming-grid');
+  if(upcoming.length){
+    upcomingSection.style.display='block';
+    upcomingGrid.innerHTML=upcoming.map(({ev,slot},i)=>{
+      const soon=slot.secsUntilStart<900;
+      const cls=soon?'ev-badge-soon':'ev-badge-later';
+      const label=soon?'▲ STARTING SOON':'◇ UPCOMING';
+      const timerCls=soon?'timer-soon':'timer-normal';
+      return`<div class="event-card-upcoming">
+        <div class="ev-badge ${cls}">${label}</div>
+        <div class="ev-header">
+          <img class="ev-icon" src="${ev.icon}" onerror="this.style.display='none'" alt=""/>
+          <div>
+            <div class="ev-name">${ev.name}</div>
+            <div class="ev-map">// ${ev.map.toUpperCase()}</div>
+          </div>
+        </div>
+        <div class="ev-time-row">
+          <div class="ev-window">Starts: <span>${slot.start} UTC</span></div>
+          <div class="timer-display ${timerCls}" id="ev-timer-u-${i}">IN ${fmtSeconds(slot.secsUntilStart)}</div>
+        </div>
+        <div class="notify-toggle" id="ntog-u-${i}" onclick="toggleNotify(this,'u-${i}','${ev.name} on ${ev.map}')">
+          <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+          <span class="tog-txt">NOTIFY</span>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    upcomingSection.style.display='none';
+  }
+}
+
+// live countdown tick
+let timerTickInterval=null;
+const notifyArmed={};
+
+function startTimerTick(){
+  if(timerTickInterval)clearInterval(timerTickInterval);
+  timerTickInterval=setInterval(()=>{
+    const nowSec=utcNowSeconds();
+    // update active timers
+    document.querySelectorAll('[id^="ev-timer-a-"]').forEach((el,i)=>{
+      const{ev,slot}=getActiveByIndex(i,'active');
+      if(!ev)return;
+      const newSlot=getNextSlot(ev.times,nowSec);
+      if(newSlot&&newSlot.active){
+        el.textContent='ENDS '+fmtSeconds(newSlot.secsUntilEnd);
+        if(newSlot.secsUntilEnd<=0&&notifyArmed['a-'+i]){
+          showToast('EVENT ENDED: '+ev.name+' on '+ev.map,'var(--red)');
+        }
+      } else {
+        // event ended, re-render
+        renderTimers();startTimerTick();return;
+      }
+    });
+    // update upcoming timers
+    document.querySelectorAll('[id^="ev-timer-u-"]').forEach((el,i)=>{
+      const{ev,slot}=getActiveByIndex(i,'upcoming');
+      if(!ev)return;
+      const newSlot=getNextSlot(ev.times,nowSec);
+      if(newSlot&&!newSlot.active){
+        el.textContent='IN '+fmtSeconds(newSlot.secsUntilStart);
+        if(newSlot.secsUntilStart<=0){
+          renderTimers();startTimerTick();return;
+        }
+        if(newSlot.secsUntilStart<900){
+          el.className='timer-display timer-soon';
+        }
+        if(notifyArmed['u-'+i]&&newSlot.secsUntilStart<=60){
+          showToast('STARTING: '+ev.name+' on '+ev.map,'var(--gold)');
+        }
+      }
+    });
+  },1000);
+}
+
+// helpers to get event by rendered index
+let _lastActive=[];let _lastUpcoming=[];
+function getActiveByIndex(i,type){
+  const nowSec=utcNowSeconds();
+  const filtered=mapFilter==='all'?allEvents:allEvents.filter(e=>e.map===mapFilter);
+  const classified=filtered.map(ev=>({ev,slot:getNextSlot(ev.times,nowSec)}));
+  const list=type==='active'
+    ?classified.filter(x=>x.slot&&x.slot.active)
+    :classified.filter(x=>x.slot&&!x.slot.active).sort((a,b)=>a.slot.secsUntilStart-b.slot.secsUntilStart);
+  return list[i]||{ev:null,slot:null};
+}
+
+function toggleNotify(el,key,label){
+  notifyArmed[key]=!notifyArmed[key];
+  el.classList.toggle('on',notifyArmed[key]);
+  el.querySelector('.tog-txt').textContent=notifyArmed[key]?'NOTIFY ON':'NOTIFY';
+  if(notifyArmed[key])showToast('NOTIFY ARMED: '+label,'var(--green)');
+}
+
+function setMapFilter(btn,map){
+  mapFilter=map;
+  document.querySelectorAll('.map-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTimers();
+  startTimerTick();
+}
+
+const TARGET_URL='https://metaforge.app/api/arc-raiders/event-timers';
+const PROXIES=[
+  url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  url=>url, // direct last — works if served from a real server
+];
+
+// Embedded cache: real data fetched 2025-04-19, refreshed on every successful proxy hit
+const CACHED_EVENTS=[{"game":"arc-raiders","name":"Matriarch","map":"Blue Gate","icon":"https://cdn.metaforge.app/arc-raiders/custom/matriarch.webp","description":"","days":[],"times":[{"start":"08:00","end":"09:00"},{"start":"14:00","end":"15:00"},{"start":"20:00","end":"21:00"}]},{"game":"arc-raiders","name":"Electromagnetic Storm","map":"Blue Gate","icon":"https://cdn.metaforge.app/arc-raiders/custom/electrical.webp","description":"","days":[],"times":[{"start":"08:00","end":"09:00"},{"start":"12:00","end":"13:00"},{"start":"16:00","end":"17:00"},{"start":"20:00","end":"21:00"}]},{"game":"arc-raiders","name":"Lush Blooms","map":"Spaceport","icon":"https://cdn.metaforge.app/arc-raiders/custom/lush.webp","description":"","days":[],"times":[{"start":"09:00","end":"10:00"},{"start":"18:00","end":"19:00"}]},{"game":"arc-raiders","name":"Electromagnetic Storm","map":"Dam","icon":"https://cdn.metaforge.app/arc-raiders/custom/electrical.webp","description":"","days":[],"times":[{"start":"09:00","end":"10:00"},{"start":"17:00","end":"18:00"}]},{"game":"arc-raiders","name":"Lush Blooms","map":"Buried City","icon":"https://cdn.metaforge.app/arc-raiders/custom/lush.webp","description":"","days":[],"times":[{"start":"10:00","end":"11:00"},{"start":"16:00","end":"17:00"},{"start":"22:00","end":"23:00"}]},{"game":"arc-raiders","name":"Night Raid","map":"Buried City","icon":"https://cdn.metaforge.app/arc-raiders/custom/night.webp","description":"","days":[],"times":[{"start":"07:00","end":"08:00"},{"start":"10:00","end":"11:00"},{"start":"18:00","end":"19:00"}]},{"game":"arc-raiders","name":"Night Raid","map":"Stella Montis","icon":"https://cdn.metaforge.app/arc-raiders/custom/night.webp","description":"","days":[],"times":[{"start":"02:00","end":"03:00"},{"start":"06:00","end":"07:00"},{"start":"10:00","end":"11:00"},{"start":"14:00","end":"15:00"},{"start":"18:00","end":"19:00"},{"start":"22:00","end":"23:00"}]},{"game":"arc-raiders","name":"Lush Blooms","map":"Dam","icon":"https://cdn.metaforge.app/arc-raiders/custom/lush.webp","description":"","days":[],"times":[{"start":"10:00","end":"11:00"}]},{"game":"arc-raiders","name":"Hidden Bunker","map":"Spaceport","icon":"https://cdn.metaforge.app/arc-raiders/custom/hiddenbunker.webp","description":"","days":[],"times":[{"start":"08:00","end":"09:00"},{"start":"11:00","end":"12:00"}]},{"game":"arc-raiders","name":"Lush Blooms","map":"Blue Gate","icon":"https://cdn.metaforge.app/arc-raiders/custom/lush.webp","description":"","days":[],"times":[{"start":"11:00","end":"12:00"},{"start":"17:00","end":"18:00"},{"start":"23:00","end":"00:00"}]},{"game":"arc-raiders","name":"Harvester","map":"Spaceport","icon":"https://cdn.metaforge.app/arc-raiders/custom/harvester.webp","description":"","days":[],"times":[{"start":"00:00","end":"01:00"},{"start":"06:00","end":"07:00"},{"start":"12:00","end":"13:00"}]},{"game":"arc-raiders","name":"Matriarch","map":"Dam","icon":"https://cdn.metaforge.app/arc-raiders/custom/matriarch.webp","description":"","days":[],"times":[{"start":"07:00","end":"08:00"},{"start":"13:00","end":"14:00"},{"start":"19:00","end":"20:00"}]},{"game":"arc-raiders","name":"Night Raid","map":"Dam","icon":"https://cdn.metaforge.app/arc-raiders/custom/night.webp","description":"","days":[],"times":[{"start":"06:00","end":"07:00"},{"start":"13:00","end":"14:00"},{"start":"21:00","end":"22:00"}]},{"game":"arc-raiders","name":"Matriarch","map":"Spaceport","icon":"https://cdn.metaforge.app/arc-raiders/custom/matriarch.webp","description":"","days":[],"times":[{"start":"03:00","end":"04:00"},{"start":"15:00","end":"16:00"}]},{"game":"arc-raiders","name":"Electromagnetic Storm","map":"Spaceport","icon":"https://cdn.metaforge.app/arc-raiders/custom/electrical.webp","description":"","days":[],"times":[{"start":"04:00","end":"05:00"},{"start":"15:00","end":"16:00"},{"start":"23:00","end":"00:00"}]},{"game":"arc-raiders","name":"Harvester","map":"Dam","icon":"https://cdn.metaforge.app/arc-raiders/custom/harvester.webp","description":"","days":[],"times":[{"start":"04:00","end":"05:00"},{"start":"16:00","end":"17:00"},{"start":"22:00","end":"23:00"}]},{"game":"arc-raiders","name":"Night Raid","map":"Spaceport","icon":"https://cdn.metaforge.app/arc-raiders/custom/night.webp","description":"","days":[],"times":[{"start":"00:00","end":"01:00"},{"start":"19:00","end":"20:00"}]},{"game":"arc-raiders","name":"Launch Tower Loot","map":"Spaceport","icon":"https://cdn.metaforge.app/arc-raiders/custom/launchtowerloot.webp","description":"","days":[],"times":[{"start":"21:00","end":"22:00"}]},{"game":"arc-raiders","name":"Prospecting Probes","map":"Buried City","icon":"https://cdn.metaforge.app/arc-raiders/custom/probe.webp","description":"","days":[],"times":[{"start":"01:00","end":"02:00"},{"start":"07:00","end":"08:00"}]},{"game":"arc-raiders","name":"Prospecting Probes","map":"Dam","icon":"https://cdn.metaforge.app/arc-raiders/custom/probe.webp","description":"","days":[],"times":[{"start":"01:00","end":"02:00"}]},{"game":"arc-raiders","name":"Harvester","map":"Blue Gate","icon":"https://cdn.metaforge.app/arc-raiders/custom/harvester.webp","description":"","days":[],"times":[{"start":"02:00","end":"03:00"}]},{"game":"arc-raiders","name":"Prospecting Probes","map":"Blue Gate","icon":"https://cdn.metaforge.app/arc-raiders/custom/probe.webp","description":"","days":[],"times":[{"start":"05:00","end":"06:00"}]},{"game":"arc-raiders","name":"Night Raid","map":"Blue Gate","icon":"https://cdn.metaforge.app/arc-raiders/custom/night.webp","description":"","days":[],"times":[{"start":"05:00","end":"06:00"}]}];
+
+async function tryFetch(proxyFn){
+  const url=proxyFn(TARGET_URL);
+  const r=await fetch(url,{signal:AbortSignal.timeout(6000)});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const json=await r.json();
+  const data=json.data||json;
+  if(!Array.isArray(data)||!data.length)throw new Error('empty');
+  return data;
+}
+
+async function loadEventTimers(){
+  document.getElementById('timer-sync-time').textContent='Syncing...';
+  for(const proxyFn of PROXIES){
+    try{
+      const data=await tryFetch(proxyFn);
+      allEvents=data;
+      renderTimers();
+      startTimerTick();
+      document.getElementById('timer-api-status').innerHTML='<span class="status-dot dot-live"></span>TIMERS LIVE';
+      document.getElementById('timer-sync-time').textContent='Live sync: '+new Date().toUTCString().slice(17,22)+' UTC';
+      return;
+    }catch(e){
+      // try next proxy
+    }
+  }
+  // all proxies failed — use embedded cache
+  allEvents=CACHED_EVENTS;
+  renderTimers();
+  startTimerTick();
+  document.getElementById('timer-api-status').innerHTML='<span class="status-dot dot-warn"></span>CACHED DATA';
+  document.getElementById('timer-sync-time').textContent='Using embedded cache (schedules accurate)';
+}
+// re-fetch every 5 minutes
+loadEventTimers();
+setInterval(loadEventTimers,300000);
+
+// ── ITEMS ─────────────────────────────
+let allItems=[];let rarFilter='all';let searchQuery='';
+function rarityColor(r){if(!r)return'#888';const l=r.toLowerCase();if(l.includes('legendary'))return'var(--gold)';if(l.includes('epic'))return'#8b00ff';if(l.includes('rare'))return'#0077cc';if(l.includes('uncommon'))return'#00b050';return'#888';}
+function rarityClass(r){if(!r)return'rarity-common';const l=r.toLowerCase();if(l.includes('legendary'))return'rarity-legendary';if(l.includes('epic'))return'rarity-epic';if(l.includes('rare'))return'rarity-rare';if(l.includes('uncommon'))return'rarity-uncommon';return'rarity-common';}
+function getName(obj){if(!obj)return'';if(typeof obj==='string')return obj;return obj.en||obj.english||Object.values(obj)[0]||'';}
+async function loadItemPage(offset){const r=await fetch('https://arcdata.mahcks.com/v1/items?full=true&limit=45&offset='+offset,{signal:AbortSignal.timeout(10000)});if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();return Array.isArray(d)?d:(d.items||d.data||[]);}
+async function loadAllItems(){
+  try{
+    const first=await loadItemPage(0);
+    allItems=first;renderItemGrid();
+    document.getElementById('item-api-status').innerHTML='<span class="status-dot dot-live"></span>ITEMS LIVE';
+    let offset=45;
+    while(true){const batch=await loadItemPage(offset);if(!batch.length)break;allItems=[...allItems,...batch];document.getElementById('item-count').textContent=allItems.length+' ITEMS';document.getElementById('stat-items').textContent=allItems.length;offset+=45;if(batch.length<45)break;}
+  }catch(e){document.getElementById('item-loading').innerHTML='<span style="color:var(--red);">ITEMS ERROR — '+e.message+'</span>';document.getElementById('item-api-status').innerHTML='<span class="status-dot dot-dead"></span>ITEMS OFFLINE';}
+}
+function getFiltered(){return allItems.filter(item=>{const name=(getName(item.name)||item.id||'').toLowerCase();const rar=(item.rarity||'').toLowerCase();return(!searchQuery||name.includes(searchQuery))&&(rarFilter==='all'||rar.includes(rarFilter));});}
+function itemCard(item){const name=getName(item.name)||item.id||'Unknown';const rarity=item.rarity||'';const cat=getName(item.category)||getName(item.type)||'';const imgUrl='https://arcraiders.wiki/images/'+encodeURIComponent(name.replaceAll(' ','_'))+'.png';return`<div class="item-card"><div class="item-img-wrap"><img src="${imgUrl}" onerror="this.parentElement.innerHTML='<div class=\\'item-img-placeholder\\'>IMG</div>'"/></div><div class="item-info"><div class="item-name" title="${name}">${name}</div>${rarity?`<div class="item-rarity ${rarityClass(rarity)}">${rarity.toUpperCase()}</div>`:''} ${cat?`<div class="item-category">${cat}</div>`:''}</div></div>`;}
+function renderItemGrid(){document.getElementById('item-loading').style.display='none';document.getElementById('item-count').textContent=allItems.length+' ITEMS';document.getElementById('stat-items').textContent=allItems.length;const f=getFiltered();const shown=f.slice(0,60);document.getElementById('item-grid').innerHTML=shown.map(itemCard).join('');const btn=document.getElementById('load-more-btn');btn.style.display=f.length>60?'block':'none';btn.dataset.shown=60;}
+function loadMoreItems(){const btn=document.getElementById('load-more-btn');const shown=parseInt(btn.dataset.shown)||60;const f=getFiltered();document.getElementById('item-grid').innerHTML+=f.slice(shown,shown+60).map(itemCard).join('');btn.dataset.shown=shown+60;if(shown+60>=f.length)btn.style.display='none';}
+function filterItems(){searchQuery=document.getElementById('item-search').value.toLowerCase();renderItemGrid();}
+function setRarFilter(btn,rar){rarFilter=rar;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');filterItems();}
+loadAllItems();
+
+// ── TRADE ─────────────────────────────
+const trades=[];let currentTrade=null;
+function renderTrades(){document.getElementById('stat-trades').textContent=trades.length;if(!trades.length){document.getElementById('trade-feed-inner').innerHTML='<div class="empty-feed">NO ACTIVE LISTINGS<br><span style="color:var(--text2);">Post a trade to get started</span></div>';return;}document.getElementById('trade-feed-inner').innerHTML=trades.map((t,i)=>`<div class="trade-card" onclick="openTraderModal(${i})"><div class="trade-card-header"><div class="trader-info"><div class="trader-avatar">${t.avatar}</div><div><div class="trader-name">${t.trader}</div><div class="trader-rep">★★★★★ <span style="color:var(--text2);font-size:8px;">new</span></div></div></div><div style="display:flex;align-items:center;gap:6px;"><span class="trade-tag">LIVE</span><span class="trade-time">${t.time}</span></div></div><div class="trade-items"><div class="trade-item-chip"><div class="trade-dot" style="background:${rarityColor(t.offRarity)}"></div>${t.offering}</div><span style="color:var(--muted);">⇄</span><div class="trade-item-chip"><div class="trade-dot" style="background:${rarityColor(t.reqRarity)}"></div>${t.requesting}</div></div></div>`).join('');}
+renderTrades();
+function openTraderModal(idx){const t=trades[idx];currentTrade=t;document.getElementById('mod-avatar').textContent=t.avatar;document.getElementById('mod-name').textContent=t.trader;document.getElementById('mod-offering').textContent=t.offering;document.getElementById('mod-requesting').textContent=t.requesting;document.getElementById('trader-modal').style.display='flex';}
+function closeModal(){document.getElementById('trader-modal').style.display='none';}
+function initiateComms(){closeModal();showToast('COMMS CHANNEL OPENED → '+currentTrade?.trader);}
+
+// ── AUTOCOMPLETE ──────────────────────
+const selItems={offer:null,req:null};
+function fuzzy(q,s){const ql=q.toLowerCase(),sl=s.toLowerCase();if(sl.startsWith(ql))return 3;if(sl.includes(ql))return 2;let i=0;for(const c of sl){if(i<ql.length&&c===ql[i])i++;}return i===ql.length?1:0;}
+function handleAC(input,side){const q=input.value.trim();const acEl=document.getElementById(side+'-ac');if(!q||!allItems.length){acEl.style.display='none';return;}const results=allItems.map(item=>({item,score:fuzzy(q,getName(item.name)||item.id||'')})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,10);if(!results.length){acEl.style.display='none';return;}acEl.innerHTML=results.map(({item})=>{const name=getName(item.name)||item.id;const rarity=item.rarity||'';const imgUrl='https://arcraiders.wiki/images/'+encodeURIComponent(name.replaceAll(' ','_'))+'.png';return`<div class="ac-item" onclick="selectItem('${side}','${name.replace(/'/g,"\\'")}','${rarity}')"><img class="ac-thumb" src="${imgUrl}" onerror="this.style.display='none'"/><span class="ac-name">${name}</span><span class="ac-rar" style="color:${rarityColor(rarity)}">${rarity.toUpperCase()}</span></div>`;}).join('');acEl.style.display='block';}
+function selectItem(side,name,rarity){selItems[side]={name,rarity};document.getElementById(side+'-input').value=name;document.getElementById(side+'-ac').style.display='none';const imgUrl='https://arcraiders.wiki/images/'+encodeURIComponent(name.replaceAll(' ','_'))+'.png';document.getElementById(side+'-sel').innerHTML=`<div class="sel-chip"><img class="sel-thumb" src="${imgUrl}" onerror="this.style.display='none'"/><span style="color:${rarityColor(rarity)};font-size:10px;">${name}</span></div>`;}
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))document.querySelectorAll('.ac-list').forEach(el=>el.style.display='none');});
+function openCreate(){if(!allItems.length){showToast('WAIT — items still loading','var(--gold)');return;}document.getElementById('create-overlay').style.display='flex';}
+function closeCreate(){document.getElementById('create-overlay').style.display='none';['offer','req'].forEach(s=>{document.getElementById(s+'-input').value='';document.getElementById(s+'-ac').style.display='none';document.getElementById(s+'-sel').innerHTML='';selItems[s]=null;});}
+function postTrade(){const off=selItems.offer?.name||document.getElementById('offer-input').value.trim();const req=selItems.req?.name||document.getElementById('req-input').value.trim();if(!off||!req){showToast('ERROR: Both fields required','var(--red)');return;}const initials=off.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();trades.unshift({trader:'YOU',avatar:initials||'ME',offering:off,offRarity:selItems.offer?.rarity||'',requesting:req,reqRarity:selItems.req?.rarity||'',time:'just now'});renderTrades();closeCreate();showToast('TRADE POSTED — '+off+' FOR '+req);}
+</script>
+
+
+</body></html>
